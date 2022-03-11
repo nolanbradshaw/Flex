@@ -3,9 +3,9 @@ using YamlDotNet.RepresentationModel;
 
 namespace Flex.Parsers
 {
-    internal static class YamlParser
+    public static class YamlParser
     {
-        internal static Dictionary<string, string> ParseToDictionary(YamlMappingNode mappingNode)
+        public static Dictionary<string, string> ParseToDictionary(YamlMappingNode mappingNode)
         {
             var dataDict = new Dictionary<string, string>();
             foreach (var child in mappingNode.Children)
