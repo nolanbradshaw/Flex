@@ -2,6 +2,7 @@
 using Flex.Parsers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
@@ -13,11 +14,24 @@ namespace Flex.Configuration
     {
         public static void AddFlexContainer(this IServiceCollection services, string filePath)
         {
-            using var streamReader = new StreamReader(filePath);
-            var yamlStream = streamReader.ToYamlStream();
+            var fileExt = Path.GetExtension(filePath);
+            var fileText = File.ReadAllText(filePath);
 
-            var mappingNode = (YamlMappingNode)yamlStream.Documents[0].RootNode;
-            services.AddSingleton<IFlexContainer>(new FlexContainer(YamlParser.ParseToDictionary(mappingNode)));
+            Dictionary<string, string> dataDict;
+            if (fileExt == ".json")
+            {
+                dataDict = JsonParser.ParseToDictionary(fileText);
+            }
+            else
+            {
+                using var streamReader = new StreamReader(filePath);
+                var yamlStream = streamReader.ToYamlStream();
+
+                var mappingNode = (YamlMappingNode)yamlStream.Documents[0].RootNode;
+                dataDict = YamlParser.ParseToDictionary(mappingNode);
+            }
+
+            services.AddSingleton<IFlexContainer>(new FlexContainer(dataDict));
         }
 
         public static void AddFlexContainer<T>(this IServiceCollection services, string filePath)
