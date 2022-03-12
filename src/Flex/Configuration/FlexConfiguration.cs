@@ -2,6 +2,8 @@
 using Flex.Parsers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.RepresentationModel;
@@ -12,12 +14,17 @@ namespace Flex.Configuration
 {
     public static class FlexConfiguration
     {
+        /// <summary>
+        /// Register container from a file.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="filePath"></param>
         public static void AddFlexContainer(this IServiceCollection services, string filePath)
         {
             var fileExt = Path.GetExtension(filePath);
             var fileText = File.ReadAllText(filePath);
 
-            Dictionary<string, string> dataDict;
+            Dictionary<string, string> dataDict = new();
             if (fileExt == ".json")
             {
                 dataDict = JsonParser.ParseToDictionary(fileText);
@@ -34,6 +41,12 @@ namespace Flex.Configuration
             services.AddSingleton<IFlexContainer>(new FlexContainer(dataDict));
         }
 
+        /// <summary>
+        /// Register container from a file.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="filePath"></param>
         public static void AddFlexContainer<T>(this IServiceCollection services, string filePath)
             where T : class
         {
@@ -55,6 +68,23 @@ namespace Flex.Configuration
 
             // Check for obj being null
             services.AddSingleton<IFlexContainer<T>>(new FlexContainer<T>(obj));
+        }
+
+        /// <summary>
+        /// Register container with environment variables.
+        /// </summary>
+        /// <param name="services"></param>
+        public static void AddFlexContainer(this IServiceCollection services)
+        {
+            Dictionary<string, string> dataDict = new();
+
+            var envs = Environment.GetEnvironmentVariables();
+            foreach(DictionaryEntry variable in envs)
+            {
+                dataDict.Add(variable.Key.ToString(), variable.Value.ToString());
+            }
+
+            services.AddSingleton<IFlexContainer>(new FlexContainer(dataDict));
         }
     }
 }
