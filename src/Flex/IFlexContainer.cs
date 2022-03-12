@@ -10,5 +10,9 @@ namespace Flex
     public interface IFlexContainer
     {
         public string Get(string key);
+
+        bool TryGetValue(string key, out string value);
+
+        public string this[string key] { get; }
     }
 }

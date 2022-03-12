@@ -1,9 +1,5 @@
 ﻿using Flex.Parsers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using YamlDotNet.RepresentationModel;
 
@@ -36,8 +32,8 @@ namespace Flex.Tests.Parsers
             var mappedDict = YamlParser.ParseToDictionary(MappingNode);
 
             Assert.True(mappedDict.Count == 2);
-            Assert.Equal("Version", mappedDict.First().Key);
-            Assert.Equal("IsOpenSource", mappedDict.ElementAt(1).Key);
+            Assert.True(mappedDict.ContainsKey("Version"));
+            Assert.True(mappedDict.ContainsKey("IsOpenSource"));
         }
 
         [Fact]

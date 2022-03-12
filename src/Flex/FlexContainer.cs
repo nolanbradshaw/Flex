@@ -19,6 +19,24 @@ namespace Flex
         {
             return Data[key];
         }
+
+        public bool TryGetValue(string key, out string value)
+        {
+            if (Data.TryGetValue(key, out value))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public string this[string key]
+        {
+            get
+            {
+                return this.Get(key);
+            }
+        }
     }
 
     public class FlexContainer<T> : IFlexContainer<T>
