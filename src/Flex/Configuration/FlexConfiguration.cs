@@ -3,7 +3,6 @@ using Flex.Parsers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.RepresentationModel;
@@ -76,15 +75,20 @@ namespace Flex.Configuration
         /// <param name="services"></param>
         public static void AddFlexContainer(this IServiceCollection services)
         {
-            Dictionary<string, string> dataDict = new();
-
             var envs = Environment.GetEnvironmentVariables();
-            foreach(DictionaryEntry variable in envs)
-            {
-                dataDict.Add(variable.Key.ToString(), variable.Value.ToString());
-            }
+            services.AddSingleton<IFlexContainer>(new FlexContainer(envs.ToStringDictionary()));
+        }
 
-            services.AddSingleton<IFlexContainer>(new FlexContainer(dataDict));
+        /// <summary>
+        /// Register container with environment variables.
+        /// </summary>
+        /// <param name="services"></param>
+        public static void AddFlexContainer<T>(this IServiceCollection services)
+            where T : class, new()
+        {
+            var envs = Environment.GetEnvironmentVariables();
+            var obj = envs.ToObject<T>();
+            services.AddSingleton<IFlexContainer<T>>(new FlexContainer<T>(obj));
         }
     }
 }
