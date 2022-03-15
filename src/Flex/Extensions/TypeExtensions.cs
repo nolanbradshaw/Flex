@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Flex.Extensions
 {
     public static class TypeExtensions
     {
-        public static void SetPropertyValue(this Type type, string propertyName, object value)
+        public static void SetPropertyValue(this object obj, string propertyName, object value)
         {
-            var property = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            var property = obj.GetType().GetProperty(propertyName);
             if (property != null && property.CanWrite)
             {
-                property.SetValue(type, Convert.ChangeType(value, property.GetType()), null);
+                property.SetValue(obj, Convert.ChangeType(value, property.PropertyType), null);
             }
         }
 
         public static HashSet<string> GetPropertiesLookup(this Type type)
         {
             HashSet<string> lookup = new();
-            foreach(var property in type.GetProperties())
+            foreach (var property in type.GetProperties())
             {
                 lookup.Add(property.Name);
             }

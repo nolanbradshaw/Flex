@@ -52,7 +52,7 @@ namespace Flex.Configuration
             var fileExt = Path.GetExtension(filePath);
             var fileText = File.ReadAllText(filePath);
 
-            T obj = null;
+            T obj;
             if (fileExt == ".json")
             {
                 obj = JsonConvert.DeserializeObject<T>(fileText);
@@ -65,7 +65,6 @@ namespace Flex.Configuration
                 obj = deserializer.Deserialize<T>(fileText);
             }
 
-            // Check for obj being null
             services.AddSingleton<IFlexContainer<T>>(new FlexContainer<T>(obj));
         }
 

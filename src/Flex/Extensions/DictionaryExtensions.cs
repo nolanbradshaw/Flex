@@ -42,7 +42,7 @@ namespace Flex.Extensions
                 // If the environment variable is a property in the given type.
                 if (typePropLookup.Contains(entry.Key.ToString()))
                 {
-                    objType.SetPropertyValue(entry.Key.ToString(), entry.Value);
+                    obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
                 }
             }
 
