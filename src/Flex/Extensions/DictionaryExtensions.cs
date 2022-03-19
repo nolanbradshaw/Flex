@@ -25,6 +25,25 @@ namespace Flex.Extensions
         }
 
         /// <summary>
+        /// Applies a dictionaries values to an objects properties.
+        /// </summary>
+        public static void AddToObject<T>(this IDictionary dict, T obj)
+            where T : class, new()
+        {
+            var type = obj.GetType();
+            var properties = type.GetPropertiesLookup();
+            foreach (DictionaryEntry entry in dict)
+            {
+                if (!properties.Contains(entry.Key.ToString()))
+                {
+                    continue;
+                }
+
+                obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
+            }
+        }
+
+        /// <summary>
         /// Converts a dictionary to an object.
         /// </summary>
         /// <typeparam name="T"></typeparam>
