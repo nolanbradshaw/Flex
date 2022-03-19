@@ -3,9 +3,6 @@ using Flex.Parsers;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.RepresentationModel;
 
 namespace Flex.Helpers
@@ -22,11 +19,11 @@ namespace Flex.Helpers
             var fileExt = Path.GetExtension(filePath);
             var fileText = File.ReadAllText(filePath);
 
-            if (fileExt == ".json")
+            if (fileExt is ".json")
             {
                 return JsonParser.ParseToDictionary(fileText);
             }
-            else
+            else if(fileExt is ".yml" or ".yaml")
             {
                 using var streamReader = new StreamReader(filePath);
                 var yamlStream = streamReader.ToYamlStream();
@@ -34,6 +31,8 @@ namespace Flex.Helpers
                 var mappingNode = (YamlMappingNode)yamlStream.Documents[0].RootNode;
                 return YamlParser.ParseToDictionary(mappingNode);
             }
+
+            throw new ArgumentException("File type is not supported.");
         }
     }
 }

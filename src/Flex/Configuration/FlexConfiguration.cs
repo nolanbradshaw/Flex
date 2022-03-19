@@ -67,7 +67,7 @@ namespace Flex.Configuration
             where T : class, new()
         {
             Dictionary<string, string> dataDict = FileHelpers.FileToDictionary(filePath);
-            dataDict.AddToObject(container);
+            dataDict.AddToObject(container.Data);
             return container;
         }
 
