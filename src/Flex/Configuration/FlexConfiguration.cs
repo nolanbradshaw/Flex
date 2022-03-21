@@ -1,93 +1,109 @@
 ﻿using Flex.Extensions;
-using Flex.Parsers;
+using Flex.Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using YamlDotNet.RepresentationModel;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Flex.Configuration
 {
     public static class FlexConfiguration
     {
         /// <summary>
-        /// Register container from a file.
+        /// Registers a FlexContainer as a singleton.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="filePath"></param>
-        public static void AddFlexContainer(this IServiceCollection services, string filePath)
+        /// <returns></returns>
+        public static FlexContainer AddFlexContainer(this IServiceCollection services)
         {
-            var fileExt = Path.GetExtension(filePath);
-            var fileText = File.ReadAllText(filePath);
-
-            Dictionary<string, string> dataDict = new();
-            if (fileExt == ".json")
-            {
-                dataDict = JsonParser.ParseToDictionary(fileText);
-            }
-            else
-            {
-                using var streamReader = new StreamReader(filePath);
-                var yamlStream = streamReader.ToYamlStream();
-
-                var mappingNode = (YamlMappingNode)yamlStream.Documents[0].RootNode;
-                dataDict = YamlParser.ParseToDictionary(mappingNode);
-            }
-
-            services.AddSingleton<IFlexContainer>(new FlexContainer(dataDict));
+            var container = new FlexContainer(new Dictionary<string, string>());
+            services.AddSingleton<IFlexContainer>(container);
+            return container;
         }
 
         /// <summary>
-        /// Register container from a file.
+        /// Registers a FlexContainer<T> as a singleton.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="services"></param>
-        /// <param name="filePath"></param>
-        public static void AddFlexContainer<T>(this IServiceCollection services, string filePath)
-            where T : class
+        /// <returns></returns>
+        public static FlexContainer<T> AddFlexContainer<T>(this IServiceCollection services)
+            where T : class, new()
         {
-            var fileExt = Path.GetExtension(filePath);
-            var fileText = File.ReadAllText(filePath);
-
-            T obj;
-            if (fileExt == ".json")
-            {
-                obj = JsonConvert.DeserializeObject<T>(fileText);
-            }
-            else
-            {
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .Build();
-                obj = deserializer.Deserialize<T>(fileText);
-            }
-
-            services.AddSingleton<IFlexContainer<T>>(new FlexContainer<T>(obj));
+            var obj = Activator.CreateInstance(typeof(T));
+            var container = new FlexContainer<T>((T)obj);
+            services.AddSingleton<IFlexContainer<T>>(container);
+            return container;
         }
 
         /// <summary>
-        /// Register container with environment variables.
+        /// Adds a configuration file to a FlexContainer.
         /// </summary>
-        /// <param name="services"></param>
-        public static void AddFlexContainer(this IServiceCollection services)
+        /// <param name="container"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static FlexContainer AddConfigFile(this FlexContainer container, string filePath)
+        {
+            Dictionary<string, string> dataDict = FileHelpers.FileToDictionary(filePath);
+
+            foreach (var entry in dataDict)
+            {
+                if (!container.Data.ContainsKey(entry.Key))
+                {
+                    container.Data.Add(entry.Key, entry.Value);
+                }
+            }
+
+            return container;
+        }
+
+        /// <summary>
+        /// Adds a configuration file to a FlexContainer<T>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="container"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static FlexContainer<T> AddConfigFile<T>(this FlexContainer<T> container, string filePath)
+            where T : class, new()
+        {
+            Dictionary<string, string> dataDict = FileHelpers.FileToDictionary(filePath);
+            dataDict.AddToObject(container.Data);
+            return container;
+        }
+
+        /// <summary>
+        /// Adds environment variables to a FlexContainer.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        public static FlexContainer AddEnvironment(this FlexContainer container)
         {
             var envs = Environment.GetEnvironmentVariables();
-            services.AddSingleton<IFlexContainer>(new FlexContainer(envs.ToStringDictionary()));
+            var dict = envs.ToStringDictionary();
+
+            foreach (var entry in dict)
+            {
+                if (!container.Data.ContainsKey(entry.Key))
+                {
+                    container.Data.Add(entry.Key, entry.Value);
+                }
+            }
+
+            return container;
         }
 
         /// <summary>
-        /// Register container with environment variables.
+        /// Adds environment variables to a FlexContainer<T>.
         /// </summary>
-        /// <param name="services"></param>
-        public static void AddFlexContainer<T>(this IServiceCollection services)
+        /// <typeparam name="T"></typeparam>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        public static FlexContainer<T> AddEnvironment<T>(this FlexContainer<T> container)
             where T : class, new()
         {
             var envs = Environment.GetEnvironmentVariables();
-            var obj = envs.ToObject<T>();
-            services.AddSingleton<IFlexContainer<T>>(new FlexContainer<T>(obj));
+            envs.AddToObject(container.Data);
+            return container;
         }
     }
 }
