@@ -24,6 +24,19 @@ namespace Flex.Extensions
             return resultDict;
         }
 
+        public static Dictionary<string, string> MergeDictionaries(this Dictionary<string, string> dict, Dictionary<string, string> dictToMerge)
+        {
+            foreach(var entry in dictToMerge)
+            {
+                if (!dict.ContainsKey(entry.Key))
+                {
+                    dict.Add(entry.Key, entry.Value);
+                }
+            }
+
+            return dict;
+        }
+
         /// <summary>
         /// Applies a dictionaries values to an objects properties.
         /// </summary>
