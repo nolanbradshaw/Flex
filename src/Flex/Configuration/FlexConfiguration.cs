@@ -33,7 +33,10 @@ namespace Flex.Configuration
         public static FlexContainer<T> AddFlexContainer<T>(this IServiceCollection services)
             where T : class, new()
         {
+            var dict = FileHelpers.DefaultFilesToDictionary();
             var obj = Activator.CreateInstance(typeof(T));
+            dict.AddToObject(obj);
+
             var container = new FlexContainer<T>((T)obj);
             services.AddSingleton<IFlexContainer<T>>(container);
             return container;
