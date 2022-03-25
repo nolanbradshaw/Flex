@@ -1,21 +1,25 @@
-﻿using Flex.Extensions;
+﻿using Flex.Constants;
+using Flex.Extensions;
 using Flex.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Flex.Configuration
 {
     public static class FlexConfiguration
     {
         /// <summary>
-        /// Registers a FlexContainer as a singleton.
+        /// Registers a FlexContainer with default files as a singleton.
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
         public static FlexContainer AddFlexContainer(this IServiceCollection services)
         {
-            var container = new FlexContainer(new Dictionary<string, string>());
+            var dict = FileHelpers.DefaultFilesToDictionary();
+
+            var container = new FlexContainer(dict);
             services.AddSingleton<IFlexContainer>(container);
             return container;
         }
@@ -29,7 +33,10 @@ namespace Flex.Configuration
         public static FlexContainer<T> AddFlexContainer<T>(this IServiceCollection services)
             where T : class, new()
         {
+            var dict = FileHelpers.DefaultFilesToDictionary();
             var obj = Activator.CreateInstance(typeof(T));
+            dict.AddToObject(obj);
+
             var container = new FlexContainer<T>((T)obj);
             services.AddSingleton<IFlexContainer<T>>(container);
             return container;
