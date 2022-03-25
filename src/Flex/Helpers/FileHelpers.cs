@@ -14,7 +14,7 @@ namespace Flex.Helpers
         /// Reads a configuration files text and converts to a Dictionary<string, string>
         /// </summary>
         /// <param name="filePath"></param>
-        /// <returns></returns>
+        /// <returns>Dictionary<string, string></returns>
         public static Dictionary<string, string> FileToDictionary(string filePath)
         {
             var fileExt = Path.GetExtension(filePath);
@@ -36,6 +36,10 @@ namespace Flex.Helpers
             throw new ArgumentException("File type is not supported.");
         }
 
+        /// <summary>
+        /// Reads the default configuration files and converts to a Dictionary<string, string>
+        /// </summary>
+        /// <returns>Dictionary<string, string></returns>
         public static Dictionary<string, string> DefaultFilesToDictionary()
         {
             Dictionary<string, string> result = new();
