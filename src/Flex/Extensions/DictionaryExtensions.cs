@@ -41,7 +41,6 @@ namespace Flex.Extensions
 
         private static void Test(string key, object value, object target)
         {
-            PropertyInfo propertyToSet;
             var bits = key.Split('.');
             if (key.Contains('.'))
             {
@@ -59,15 +58,12 @@ namespace Flex.Extensions
                         propertyValue = Activator.CreateInstance(propertyToGet.PropertyType);
                         propertyToGet.SetValue(target, propertyValue);
                     }
+
                     target = propertyToGet.GetValue(target, null);
                 }
             }
 
-            propertyToSet = target.GetType().GetProperty(bits.Last());
-            if (propertyToSet != null)
-            {
-                propertyToSet.SetValue(target, Convert.ChangeType(value, propertyToSet.PropertyType), null);
-            }
+            target.SetPropertyValue(bits.Last(), value);
         }
 
         /// <summary>
