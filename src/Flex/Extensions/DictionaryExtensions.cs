@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Flex.Extensions
 {
@@ -37,6 +39,37 @@ namespace Flex.Extensions
             return dict;
         }
 
+        private static void Test(string key, object value, object target)
+        {
+            PropertyInfo propertyToSet;
+            var bits = key.Split('.');
+            if (key.Contains('.'))
+            {
+                for (var i = 0; i < bits.Length - 1; i++)
+                {
+                    var propertyToGet = target.GetType().GetProperty(bits[i]);
+                    if (propertyToGet == null)
+                    {
+                        return;
+                    }
+
+                    var propertyValue = propertyToGet.GetValue(target, null);
+                    if (propertyValue == null)
+                    {
+                        propertyValue = Activator.CreateInstance(propertyToGet.PropertyType);
+                        propertyToGet.SetValue(target, propertyValue);
+                    }
+                    target = propertyToGet.GetValue(target, null);
+                }
+            }
+
+            propertyToSet = target.GetType().GetProperty(bits.Last());
+            if (propertyToSet != null)
+            {
+                propertyToSet.SetValue(target, Convert.ChangeType(value, propertyToSet.PropertyType), null);
+            }
+        }
+
         /// <summary>
         /// Applies a dictionaries values to an objects properties.
         /// </summary>
@@ -47,12 +80,7 @@ namespace Flex.Extensions
             var properties = type.GetPropertiesLookup();
             foreach (DictionaryEntry entry in dict)
             {
-                if (!properties.Contains(entry.Key.ToString()))
-                {
-                    continue;
-                }
-
-                obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
+                Test(entry.Key.ToString(), entry.Value, obj);
             }
         }
 
