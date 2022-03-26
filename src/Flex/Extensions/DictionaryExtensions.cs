@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace Flex.Extensions
 {
@@ -28,7 +26,7 @@ namespace Flex.Extensions
 
         public static Dictionary<string, string> MergeDictionaries(this Dictionary<string, string> dict, Dictionary<string, string> dictToMerge)
         {
-            foreach(var entry in dictToMerge)
+            foreach (var entry in dictToMerge)
             {
                 if (!dict.ContainsKey(entry.Key))
                 {
@@ -39,33 +37,6 @@ namespace Flex.Extensions
             return dict;
         }
 
-        private static void Test(string key, object value, object target)
-        {
-            var bits = key.Split('.');
-            if (key.Contains('.'))
-            {
-                for (var i = 0; i < bits.Length - 1; i++)
-                {
-                    var propertyToGet = target.GetType().GetProperty(bits[i]);
-                    if (propertyToGet == null)
-                    {
-                        return;
-                    }
-
-                    var propertyValue = propertyToGet.GetValue(target, null);
-                    if (propertyValue == null)
-                    {
-                        propertyValue = Activator.CreateInstance(propertyToGet.PropertyType);
-                        propertyToGet.SetValue(target, propertyValue);
-                    }
-
-                    target = propertyToGet.GetValue(target, null);
-                }
-            }
-
-            target.SetPropertyValue(bits.Last(), value);
-        }
-
         /// <summary>
         /// Applies a dictionaries values to an objects properties.
         /// </summary>
@@ -73,10 +44,16 @@ namespace Flex.Extensions
             where T : class, new()
         {
             var type = obj.GetType();
-            var properties = type.GetPropertiesLookup();
             foreach (DictionaryEntry entry in dict)
             {
-                Test(entry.Key.ToString(), entry.Value, obj);
+                if (entry.Key.ToString().Contains('.'))
+                {
+                    obj.SetNestedPropertyValue(entry.Key.ToString(), entry.Value);
+                }
+                else
+                {
+                    obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
+                }
             }
         }
 
