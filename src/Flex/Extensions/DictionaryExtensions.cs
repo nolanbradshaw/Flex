@@ -26,7 +26,7 @@ namespace Flex.Extensions
 
         public static Dictionary<string, string> MergeDictionaries(this Dictionary<string, string> dict, Dictionary<string, string> dictToMerge)
         {
-            foreach(var entry in dictToMerge)
+            foreach (var entry in dictToMerge)
             {
                 if (!dict.ContainsKey(entry.Key))
                 {
@@ -44,15 +44,16 @@ namespace Flex.Extensions
             where T : class, new()
         {
             var type = obj.GetType();
-            var properties = type.GetPropertiesLookup();
             foreach (DictionaryEntry entry in dict)
             {
-                if (!properties.Contains(entry.Key.ToString()))
+                if (entry.Key.ToString().Contains('.'))
                 {
-                    continue;
+                    obj.SetNestedPropertyValue(entry.Key.ToString(), entry.Value);
                 }
-
-                obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
+                else
+                {
+                    obj.SetPropertyValue(entry.Key.ToString(), entry.Value);
+                }
             }
         }
 
