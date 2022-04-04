@@ -5,9 +5,9 @@ namespace Flex.Parsers
 {
     public static class YamlParser
     {
-        public static Dictionary<string, string> ParseToDictionary(YamlMappingNode mappingNode)
+        public static Dictionary<string, object> ParseToDictionary(YamlMappingNode mappingNode)
         {
-            var dataDict = new Dictionary<string, string>();
+            var dataDict = new Dictionary<string, object>();
             foreach (var child in mappingNode.Children)
             {
                 if (child.Value is YamlMappingNode node)

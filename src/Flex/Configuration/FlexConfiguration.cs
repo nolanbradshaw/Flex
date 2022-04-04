@@ -16,8 +16,14 @@ namespace Flex.Configuration
         public static FlexContainer AddFlexContainer(this IServiceCollection services)
         {
             var dict = FileHelpers.DefaultFilesToDictionary();
+            // TODO: This is ugly here
+            Dictionary<string, string> dataDict = new();
+            foreach(var entry in dict)
+            {
+                dataDict.Add(entry.Key, entry.Value.ToString());
+            }
 
-            var container = new FlexContainer(dict);
+            var container = new FlexContainer(dataDict);
             services.AddSingleton<IFlexContainer>(container);
             return container;
         }
@@ -48,13 +54,13 @@ namespace Flex.Configuration
         /// <returns></returns>
         public static FlexContainer AddConfigFile(this FlexContainer container, string filePath)
         {
-            Dictionary<string, string> dataDict = FileHelpers.FileToDictionary(filePath);
+            Dictionary<string, object> dataDict = FileHelpers.FileToDictionary(filePath);
 
             foreach (var entry in dataDict)
             {
                 if (!container.Data.ContainsKey(entry.Key))
                 {
-                    container.Data.Add(entry.Key, entry.Value);
+                    container.Data.Add(entry.Key, entry.Value.ToString());
                 }
             }
 
@@ -71,7 +77,7 @@ namespace Flex.Configuration
         public static FlexContainer<T> AddConfigFile<T>(this FlexContainer<T> container, string filePath)
             where T : class, new()
         {
-            Dictionary<string, string> dataDict = FileHelpers.FileToDictionary(filePath);
+            Dictionary<string, object> dataDict = FileHelpers.FileToDictionary(filePath);
             dataDict.AddToObject(container.Data);
             return container;
         }
