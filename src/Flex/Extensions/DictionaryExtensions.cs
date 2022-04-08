@@ -24,7 +24,7 @@ namespace Flex.Extensions
             return resultDict;
         }
 
-        public static Dictionary<string, string> MergeDictionaries(this Dictionary<string, string> dict, Dictionary<string, string> dictToMerge)
+        public static Dictionary<string, object> MergeDictionaries(this Dictionary<string, object> dict, Dictionary<string, object> dictToMerge)
         {
             foreach (var entry in dictToMerge)
             {
@@ -43,7 +43,6 @@ namespace Flex.Extensions
         public static void AddToObject<T>(this IDictionary dict, T obj)
             where T : class, new()
         {
-            var type = obj.GetType();
             foreach (DictionaryEntry entry in dict)
             {
                 if (entry.Key.ToString().Contains('.'))

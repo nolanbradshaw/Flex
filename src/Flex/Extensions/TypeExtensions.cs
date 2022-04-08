@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,10 @@ namespace Flex.Extensions
             var property = obj.GetType().GetProperty(propertyName);
             if (property != null && property.CanWrite)
             {
-                property.SetValue(obj, Convert.ChangeType(value, property.PropertyType), null);
+                var type = property.PropertyType.GetBaseType();
+                var method = typeof(TypeExtensions).GetMethod(nameof(TypeExtensions.SetGenericPropertyValue));
+                var generic = method.MakeGenericMethod(type);
+                var result = generic.Invoke(obj, new object[] { obj, property, value });
             }
         }
 
@@ -43,17 +47,61 @@ namespace Flex.Extensions
             target.SetPropertyValue(nestedKeys.Last(), value);
         }
 
+        public static void SetGenericPropertyValue<T>(object obj, PropertyInfo propInfo, object value)
+        {
+            if (propInfo.PropertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propInfo.PropertyType))
+            {
+                List<T> listValue = value.ToString()
+                    .Split(',')
+                    .Select(x => (T)Convert.ChangeType(x, typeof(T), null))
+                    .ToList();
+                propInfo.SetValue(obj, listValue, null);
+            }
+            else
+            {
+                propInfo.SetValue(obj, Convert.ChangeType(value, propInfo.PropertyType), null);
+            }
+        }
+
+        public static Type GetBaseType(this Type type)
+        {
+            if (type == typeof(string))
+            {
+                return type;
+            }
+
+            if (type.IsArray)
+            {
+                return type.GetElementType();
+            }
+
+            // type is IEnumerable<T>;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return type.GetGenericArguments()[0];
+            }
+
+            // type implements/extends IEnumerable<T>;
+            var enumerableType = type.GetInterfaces()
+                                    .Where(t => t.IsGenericType &&
+                                           t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                                    .Select(t => t.GenericTypeArguments[0])
+                                    .FirstOrDefault();
+
+            return enumerableType ?? type;
+        }
+
         public static PropertyInfo SafeGetProperty(this Type type, string propertyName)
         {
             try
             {
                 return type.GetProperty(propertyName);
-            } 
+            }
             catch (Exception)
             {
                 return null;
             }
-        } 
+        }
 
         public static HashSet<string> GetPropertiesLookup(this Type type)
         {
@@ -66,5 +114,5 @@ namespace Flex.Extensions
             return lookup;
         }
 
-    }  
+    }
 }

@@ -15,7 +15,7 @@ namespace Flex.Helpers
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>Dictionary<string, string></returns>
-        public static Dictionary<string, string> FileToDictionary(string filePath)
+        public static Dictionary<string, object> FileToDictionary(string filePath)
         {
             var fileExt = Path.GetExtension(filePath);
             var fileText = File.ReadAllText(filePath);
@@ -40,12 +40,12 @@ namespace Flex.Helpers
         /// Reads the default configuration files and converts to a Dictionary<string, string>
         /// </summary>
         /// <returns>Dictionary<string, string></returns>
-        public static Dictionary<string, string> DefaultFilesToDictionary()
+        public static Dictionary<string, object> DefaultFilesToDictionary()
         {
-            Dictionary<string, string> result = new();
+            Dictionary<string, object> result = new();
             var defaultFiles = DefaultFiles.ToList();
 
-            List<Dictionary<string, string>> dictList = new();
+            List<Dictionary<string, object>> dictList = new();
             foreach(var file in defaultFiles)
             {
                 if (File.Exists(file))
