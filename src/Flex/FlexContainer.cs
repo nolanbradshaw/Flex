@@ -4,7 +4,7 @@ namespace Flex
 {
     public class FlexContainer : IFlexContainer
     {
-        internal Dictionary<string, string> Data { get; }
+        private Dictionary<string, string> Data { get; }
         public FlexContainer(Dictionary<string, string> data)
         {
             Data = data;
