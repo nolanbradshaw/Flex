@@ -20,6 +20,11 @@ namespace Flex
             return Data[key];
         }
 
+        internal void Set(string key, string value)
+        {
+            Data.Add(key, value);
+        }
+
         public bool TryGetValue(string key, out string value)
         {
             if (Data.TryGetValue(key, out value))
