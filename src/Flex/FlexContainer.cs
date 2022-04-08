@@ -4,7 +4,7 @@ namespace Flex
 {
     public class FlexContainer : IFlexContainer
     {
-        internal Dictionary<string, string> Data { get; }
+        private Dictionary<string, string> Data { get; }
         public FlexContainer(Dictionary<string, string> data)
         {
             Data = data;
@@ -18,6 +18,11 @@ namespace Flex
         public string Get(string key)
         {
             return Data[key];
+        }
+
+        internal void Set(string key, string value)
+        {
+            Data.Add(key, value);
         }
 
         public bool TryGetValue(string key, out string value)

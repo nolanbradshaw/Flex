@@ -58,9 +58,9 @@ namespace Flex.Configuration
 
             foreach (var entry in dataDict)
             {
-                if (!container.Data.ContainsKey(entry.Key))
+                if (!container.TryGetValue(entry.Key, out string _))
                 {
-                    container.Data.Add(entry.Key, entry.Value.ToString());
+                    container.Set(entry.Key, entry.Value.ToString());
                 }
             }
 
@@ -94,9 +94,9 @@ namespace Flex.Configuration
 
             foreach (var entry in dict)
             {
-                if (!container.Data.ContainsKey(entry.Key))
+                if (!container.TryGetValue(entry.Key, out string _))
                 {
-                    container.Data.Add(entry.Key, entry.Value);
+                    container.Set(entry.Key, entry.Value);
                 }
             }
 
